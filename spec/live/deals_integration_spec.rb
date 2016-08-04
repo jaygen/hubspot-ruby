@@ -10,20 +10,20 @@ describe "Deals API Live test", live: true do
 
     expect(contact).to be_present
 
-    deal = Hubspot::Deal.create!(62515, [], [contact.vid], { amount: 30, dealstage: 'closedwon' })
+    deal = Hubspot::Deal.create!(62515, [], [contact.vid], { amount: 30, dealstage: 'estimate_sent' })
     expect(deal).to be_present
 
+    expect(deal['dealstage']).to eql 'estimate_sent'
+
+    deal.update!({dealstage: 'closedwon'})
+
     expect(deal['dealstage']).to eql 'closedwon'
-
-    deal.update!({dealstage: 'closedlost'})
-
-    expect(deal['dealstage']).to eql 'closedlost'
     expect(deal['amount']).to eql '30'
 
     #to be sure it was updated
     updated_deal = Hubspot::Deal.find(deal.deal_id)
 
-    expect(updated_deal['dealstage']).to eql 'closedlost'
+    expect(updated_deal['dealstage']).to eql 'closedwon'
     expect(updated_deal['amount']).to eql '30'
 
     expect(deal.destroy!).to be true
