@@ -18,6 +18,15 @@ describe Hubspot::Config do
     it "sets a value for portal_id" do
       expect{ subject }.to change(Hubspot::Config, :portal_id).to("62515")
     end
+
+    it 'has different configs on different threads' do
+      # Execute on the main thread
+      Hubspot::Config.configure(hapikey: '1')
+      # Execute on a secondary thread, and call #value to force the thread to run
+      expect(Thread.new { Hubspot::Config.configure(hapikey: '2').hapikey }.value).to eq('2')
+      # Ensure main thread value is unchanged
+      expect(Hubspot::Config.hapikey).to eq('1')
+    end
   end
 
   describe "#reset!" do
